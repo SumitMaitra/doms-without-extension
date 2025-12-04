@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDRC 2024 - Image Gallery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0c2e5e;
+            --secondary: #ffc107;
+            --accent: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            padding-top: 70px;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a4480 100%);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 50px;
+            padding-right: 50px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+
+
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex: 1;
+            margin: 0 20px;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin: 0 15px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            padding: 8px 15px;
+            border-radius: 4px;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-toggle {
+            display: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .nav-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .left-logo, .right-logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a4480 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .page-description {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        /* Gallery Styles */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            aspect-ratio: 4/3;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            color: white;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        
+        .gallery-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 30px;
+        }
+        
+        .lightbox.active {
+            display: flex;
+        }
+        
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 80vh;
+            position: relative;
+        }
+        
+        .lightbox-img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border: 5px solid white;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 2001;
+        }
+        
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            transform: translateY(-50%);
+            z-index: 2001;
+        }
+        
+        .lightbox-prev, .lightbox-next {
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background-color: rgba(0,0,0,0.5);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+        
+        .lightbox-prev:hover, .lightbox-next:hover {
+            background-color: rgba(0,0,0,0.8);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        
+        .footer-logo {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .footer-logo-img {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .footer-logo span {
+            color: white;
+        }
+        
+        .copyright {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+        }
+        
+        .social-icons {
+            display: flex;
+            margin-top: 20px;
+        }
+        
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            margin-right: 10px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            background: var(--secondary);
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .mobile-toggle {
+                display: block;
+            }
+            
+            .nav-links {
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--primary);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                display: none;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+            
+            .nav-links.show {
+                display: flex;
+            }
+            
+            .nav-logo {
+                height: 40px;
+            }
+            
+            .gallery-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-description {
+                font-size: 1rem;
+            }
+            
+            .gallery-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-logo-img {
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo left-logo">
+                <a href="index"><img src="images/nitd.png" alt="NIT Durgapur Logo" class="nav-logo"></a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index">Home</a></li>
+                <li><a href="index#about">About</a></li>
+                <li><a href="index#tracks">Tracks</a></li>
+                <li><a href="index#committee">Committee</a></li>
+                <li><a href="index#dates">Important Dates</a></li>
+                <li><a href="image-gallery" class="active">Gallery</a></li>
+            </ul>
+            <div class="logo right-logo">
+                <img src="images/doms.png" alt="MCRD Logo" class="nav-logo">
+            </div>
+            <div class="mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">MDRC 2024 Image Gallery</h1>
+
+            <p class="page-description">Explore moments captured during our previous Management Doctoral Research Colloquium events</p>
+        </div>
+    </header>
+
+    <!-- Gallery Section -->
+    <section class="gallery-section">
+        <div class="container">
+            <div class="gallery-container">
+                <!-- Gallery Items -->
+                <div class="gallery-item" data-img="images/DSC_7903.jpg">
+                    <img src="images/DSC_7903.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_7905.jpg">
+                    <img src="images/DSC_7905.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_7923.jpg">
+                    <img src="images/DSC_7923.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_7930.jpg">
+                    <img src="images/DSC_7930.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_7939.jpg">
+                    <img src="images/DSC_7939.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_7950.jpg">
+                    <img src="images/DSC_7950.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_7969.jpg">
+                    <img src="images/DSC_7969.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_7998.jpg">
+                    <img src="images/DSC_7998.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_8007.jpg">
+                    <img src="images/DSC_8007.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_8145.jpg">
+                    <img src="images/DSC_8145.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_8155.jpg">
+                    <img src="images/DSC_8155.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_8164.jpg">
+                    <img src="images/DSC_8164.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_8185.jpg">
+                    <img src="images/DSC_8185.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_8265.jpg">
+                    <img src="images/DSC_8265.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_8268.jpg">
+                    <img src="images/DSC_8268.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+                
+                <div class="gallery-item" data-img="images/DSC_8276.jpg">
+                    <img src="images/DSC_8276.jpg" alt="MDRC Event">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">MDRC Event</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <img src="" alt="Enlarged Image" class="lightbox-img" id="lightbox-img">
+            <div class="lightbox-nav">
+                <div class="lightbox-prev"><i class="fas fa-chevron-left"></i></div>
+                <div class="lightbox-next"><i class="fas fa-chevron-right"></i></div>
+            </div>
+        </div>
+        <div class="lightbox-close"><i class="fas fa-times"></i></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo">
+                        <img src="images/mcrd.png" alt="MCRD Logo" class="footer-logo-img">
+                    </div>
+                    <p>Management Doctoral Research Colloquium<br>Department of Management Studies<br>National Institute of Technology Durgapur</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Quick Links</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="index" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">Home</a></li>
+                        <li><a href="index#about" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">About</a></li>
+                        <li><a href="index#tracks" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">Tracks</a></li>
+                        <li><a href="index#committee" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">Committee</a></li>
+                        <li><a href="index#dates" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">Important Dates</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i> Department of Management Studies, NIT Durgapur, Mahatma Gandhi Avenue, Durgapur, West Bengal, India</p>
+                    <p><i class="fas fa-phone" style="margin-right: 10px;"></i> Mr. Souvik Mitra: +91 9007428551<br>Ms. Samanwita Saha: +91 9476421386</p>
+                    <p><i class="fas fa-envelope" style="margin-right: 10px;"></i> mdrc@nitdgp.ac.in</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2025 MDRC. All Rights Reserved.</p>
+                <p>Organized by Department of Management Studies, NIT Durgapur</p>
+            </div>
+            <div class="container">
+                <p style="margin: 0;text-align:center;font-size:10px">Developed by Sumit Maitra</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Navigation Toggle
+        document.querySelector('.mobile-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('show');
+        });
+        
+        // Gallery Lightbox Functionality
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.querySelector('.lightbox-close');
+        const lightboxPrev = document.querySelector('.lightbox-prev');
+        const lightboxNext = document.querySelector('.lightbox-next');
+        
+        let currentIndex = 0;
+        
+        // Open lightbox
+        galleryItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                const imgSrc = item.getAttribute('data-img');
+                lightboxImg.src = imgSrc;
+                currentIndex = index;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling when lightbox is open
+            });
+        });
+        
+        // Close lightbox
+        lightboxClose.addEventListener('click', () => {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto'; // Re-enable scrolling
+        });
+        
+        // Close lightbox when clicking outside the image
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // Navigate to previous image
+        lightboxPrev.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+            const imgSrc = galleryItems[currentIndex].getAttribute('data-img');
+            lightboxImg.src = imgSrc;
+        });
+        
+        // Navigate to next image
+        lightboxNext.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % galleryItems.length;
+            const imgSrc = galleryItems[currentIndex].getAttribute('data-img');
+            lightboxImg.src = imgSrc;
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            } else if (e.key === 'ArrowLeft') {
+                currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+                const imgSrc = galleryItems[currentIndex].getAttribute('data-img');
+                lightboxImg.src = imgSrc;
+            } else if (e.key === 'ArrowRight') {
+                currentIndex = (currentIndex + 1) % galleryItems.length;
+                const imgSrc = galleryItems[currentIndex].getAttribute('data-img');
+                lightboxImg.src = imgSrc;
+            }
+        });
+    </script>
+</body>
+</html>
